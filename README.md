@@ -31,8 +31,8 @@ ros-noetic-cameras/
 
 ## 1. 事前準備
 ```
-git clone
-cd 
+git clone https://github.com/tidbots/ros-noetic-cameras.git
+cd ros-noetic-cameras
 ```
 
 ### 1-1. ホスト側ディレクトリ作成（camera_info永続化先）
