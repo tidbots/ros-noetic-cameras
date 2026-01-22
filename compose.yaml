@@ -1,0 +1,48 @@
+services:
+  roscore:
+    image: ros-noetic-cameras:latest
+    build: .
+    network_mode: host
+    command: ["roscore"]
+
+  camera_webcam:
+    image: ros-noetic-cameras:latest
+    depends_on: [roscore]
+    network_mode: host
+    ipc: host
+    devices:
+      - /dev/video0:/dev/video0
+    environment:
+      - ROS_MASTER_URI=http://127.0.0.1:11311
+      - ROS_IP=127.0.0.1
+    command: ["roslaunch", "camera_launch", "webcam.launch",
+              "device:=/dev/video0", "name:=webcam", "width:=1280", "height:=720", "fps:=30"]
+    profiles: ["webcam"]
+
+  camera_xtion:
+    image: ros-noetic-cameras:latest
+    depends_on: [roscore]
+    network_mode: host
+    ipc: host
+    privileged: true
+    volumes:
+      - /dev/bus/usb:/dev/bus/usb
+    environment:
+      - ROS_MASTER_URI=http://127.0.0.1:11311
+      - ROS_IP=127.0.0.1
+    command: ["roslaunch", "camera_launch", "xtion.launch", "name:=xtion"]
+    profiles: ["xtion"]
+
+  camera_realsense:
+    image: ros-noetic-cameras:latest
+    depends_on: [roscore]
+    network_mode: host
+    ipc: host
+    privileged: true
+    volumes:
+      - /dev/bus/usb:/dev/bus/usb
+    environment:
+      - ROS_MASTER_URI=http://127.0.0.1:11311
+      - ROS_IP=127.0.0.1
+    command: ["roslaunch", "camera_launch", "realsense.launch", "name:=realsense"]
+    profiles: ["realsense"]
