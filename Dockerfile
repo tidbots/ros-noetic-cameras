@@ -12,6 +12,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     ros-noetic-camera-info-manager \
     ros-noetic-diagnostic-updater \
     ros-noetic-openni2-camera ros-noetic-openni2-launch \
+    ros-noetic-topic-tools \
     && rm -rf /var/lib/apt/lists/*
 
 # (任意) RealSense を使うなら: ホスト側USBアクセスに加えてrealsense2_cameraを追加
