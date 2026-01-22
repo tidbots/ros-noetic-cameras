@@ -88,3 +88,14 @@ services:
         "name:=realsense"
       ]
     profiles: ["realsense"]
+
+  camera_mux:
+    image: ros-noetic-cameras:latest
+    depends_on: [roscore]
+    network_mode: host
+    ipc: host
+    restart: unless-stopped
+    environment:
+      - ROS_MASTER_URI=http://127.0.0.1:11311
+      - ROS_IP=127.0.0.1
+    command: ["roslaunch", "camera_launch", "camera_mux.launch"]
