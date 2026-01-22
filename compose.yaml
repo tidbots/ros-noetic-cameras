@@ -105,4 +105,19 @@ services:
     # RealSenseをデフォルトに
 #    command: ["roslaunch", "camera_launch", "camera_mux.launch", "default_source:=realsense"]
 
-    
+  rqt_image_view:
+    image: ros-noetic-cameras:latest
+    depends_on: [roscore]
+    network_mode: host
+    ipc: host
+    restart: "no"
+    environment:
+      - ROS_MASTER_URI=http://127.0.0.1:11311
+      - ROS_IP=127.0.0.1
+      - DISPLAY=${DISPLAY}
+      - QT_X11_NO_MITSHM=1
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+    command: ["rqt_image_view", "/camera/rgb/image_raw"]
+    profiles: ["debug"]
+
