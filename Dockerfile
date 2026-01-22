@@ -9,6 +9,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     ros-noetic-usb-cam \
     ros-noetic-image-transport \
     ros-noetic-image-transport-plugins \
+    ros-noetic-rqt-image-view \
     ros-noetic-camera-info-manager \
     ros-noetic-diagnostic-updater \
     ros-noetic-openni2-camera ros-noetic-openni2-launch \
