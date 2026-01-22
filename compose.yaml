@@ -5,44 +5,86 @@ services:
     network_mode: host
     command: ["roscore"]
 
+  # --------------------------
+  # USB Webカメラ (UVC)
+  # --------------------------
   camera_webcam:
     image: ros-noetic-cameras:latest
     depends_on: [roscore]
     network_mode: host
     ipc: host
+    restart: unless-stopped
     devices:
       - /dev/video0:/dev/video0
     environment:
       - ROS_MASTER_URI=http://127.0.0.1:11311
       - ROS_IP=127.0.0.1
-    command: ["roslaunch", "camera_launch", "webcam.launch",
-              "device:=/dev/video0", "name:=webcam", "width:=1280", "height:=720", "fps:=30"]
+    volumes:
+      # camera_info 永続化（Webカメラ用）
+      - ./persist/camera_info/webcam:/root/.ros/camera_info
+    command:
+      [
+        "roslaunch", "camera_launch", "webcam.launch",
+        "device:=/dev/video0",
+        "name:=webcam",
+        "frame_id:=webcam_link",
+        "width:=1280",
+        "height:=720",
+        "fps:=30",
+        "camera_name:=webcam",
+        "camera_info_url:=file:///root/.ros/camera_info/webcam.yaml"
+      ]
     profiles: ["webcam"]
 
+  # --------------------------
+  # Xtion / OpenNI2
+  # --------------------------
   camera_xtion:
     image: ros-noetic-cameras:latest
     depends_on: [roscore]
     network_mode: host
     ipc: host
+    restart: unless-stopped
     privileged: true
     volumes:
+      # USBデバイスアクセス
       - /dev/bus/usb:/dev/bus/usb
+      # camera_info 永続化（Xtion用）
+      - ./persist/camera_info/xtion:/root/.ros/camera_info
     environment:
       - ROS_MASTER_URI=http://127.0.0.1:11311
       - ROS_IP=127.0.0.1
-    command: ["roslaunch", "camera_launch", "xtion.launch", "name:=xtion"]
+    command:
+      [
+        "roslaunch", "camera_launch", "xtion.launch",
+        "name:=xtion",
+        "rgb_processing:=true",
+        "depth_processing:=true",
+        "ir_processing:=false"
+      ]
     profiles: ["xtion"]
 
+  # --------------------------
+  # Intel RealSense (任意)
+  # --------------------------
   camera_realsense:
     image: ros-noetic-cameras:latest
     depends_on: [roscore]
     network_mode: host
     ipc: host
+    restart: unless-stopped
     privileged: true
     volumes:
+      # USBデバイスアクセス
       - /dev/bus/usb:/dev/bus/usb
+      # camera_info 永続化（RealSense用）
+      - ./persist/camera_info/realsense:/root/.ros/camera_info
     environment:
       - ROS_MASTER_URI=http://127.0.0.1:11311
       - ROS_IP=127.0.0.1
-    command: ["roslaunch", "camera_launch", "realsense.launch", "name:=realsense"]
+    command:
+      [
+        "roslaunch", "camera_launch", "realsense.launch",
+        "name:=realsense"
+      ]
     profiles: ["realsense"]
