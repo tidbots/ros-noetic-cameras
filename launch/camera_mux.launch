@@ -1,43 +1,102 @@
 <launch>
-  <!-- ========= 入力トピック（必要に応じて変更できるよう arg 化） ========= -->
+  <!--
+    default_source:
+      - webcam
+      - xtion
+      - realsense
+  -->
+  <arg name="default_source" default="xtion"/>
+
+  <!-- ========= 入力トピック（必要に応じて変更） ========= -->
 
   <!-- Webcam (UVC) -->
-  <arg name="webcam_rgb" default="/webcam/image_raw"/>
+  <arg name="webcam_rgb"  default="/webcam/image_raw"/>
   <arg name="webcam_info" default="/webcam/camera_info"/>
 
   <!-- Xtion (OpenNI2) -->
-  <arg name="xtion_rgb" default="/xtion/rgb/image_raw"/>
-  <arg name="xtion_info" default="/xtion/rgb/camera_info"/>
-  <arg name="xtion_depth" default="/xtion/depth/image_raw"/>
+  <arg name="xtion_rgb"        default="/xtion/rgb/image_raw"/>
+  <arg name="xtion_info"       default="/xtion/rgb/camera_info"/>
+  <arg name="xtion_depth"      default="/xtion/depth/image_raw"/>
   <arg name="xtion_depth_info" default="/xtion/depth/camera_info"/>
-  <arg name="xtion_points" default="/xtion/depth/points"/>
+  <arg name="xtion_points"     default="/xtion/depth/points"/>
 
-  <!-- RealSense (適宜あなたの環境のトピックに合わせて変更) -->
-  <arg name="rs_rgb" default="/realsense/color/image_raw"/>
-  <arg name="rs_info" default="/realsense/color/camera_info"/>
-  <arg name="rs_depth" default="/realsense/depth/image_rect_raw"/>
+  <!-- RealSense (環境に合わせて調整) -->
+  <arg name="rs_rgb"        default="/realsense/color/image_raw"/>
+  <arg name="rs_info"       default="/realsense/color/camera_info"/>
+  <arg name="rs_depth"      default="/realsense/depth/image_rect_raw"/>
   <arg name="rs_depth_info" default="/realsense/depth/camera_info"/>
-  <arg name="rs_points" default="/realsense/depth/points"/>
+  <arg name="rs_points"     default="/realsense/depth/points"/>
 
-  <!-- ========= 統一出力トピック ========= -->
+  <!-- ========= mux: 起動時に先頭が選択されるので、順序をdefault_sourceで切替 ========= -->
 
-  <!-- RGB Image -->
-  <node pkg="topic_tools" type="mux" name="mux_rgb_image" output="screen"
-        args="/camera/rgb/image_raw $(arg webcam_rgb) $(arg xtion_rgb) $(arg rs_rgb)" />
+  <!-- --------------------------
+       default_source == webcam
+       -------------------------- -->
+  <group if="$(eval arg('default_source') == 'webcam')">
+    <!-- RGB -->
+    <node pkg="topic_tools" type="mux" name="mux_rgb_image" output="screen"
+          args="/camera/rgb/image_raw $(arg webcam_rgb) $(arg xtion_rgb) $(arg rs_rgb)" />
+    <node pkg="topic_tools" type="mux" name="mux_rgb_info" output="screen"
+          args="/camera/rgb/camera_info $(arg webcam_info) $(arg xtion_info) $(arg rs_info)" />
 
-  <!-- RGB CameraInfo -->
-  <node pkg="topic_tools" type="mux" name="mux_rgb_info" output="screen"
-        args="/camera/rgb/camera_info $(arg webcam_info) $(arg xtion_info) $(arg rs_info)" />
+    <!-- Depth (webcamはdepth無しなので xtion をフォールバック先頭に) -->
+    <node pkg="topic_tools" type="mux" name="mux_depth_image" output="screen"
+          args="/camera/depth/image_raw $(arg xtion_depth) $(arg rs_depth)" />
+    <node pkg="topic_tools" type="mux" name="mux_depth_info" output="screen"
+          args="/camera/depth/camera_info $(arg xtion_depth_info) $(arg rs_depth_info)" />
+    <node pkg="topic_tools" type="mux" name="mux_points" output="screen"
+          args="/camera/depth/points $(arg xtion_points) $(arg rs_points)" />
+  </group>
 
-  <!-- Depth Image（webcamには無いので xtion/rs のみ） -->
-  <node pkg="topic_tools" type="mux" name="mux_depth_image" output="screen"
-        args="/camera/depth/image_raw $(arg xtion_depth) $(arg rs_depth)" />
+  <!-- --------------------------
+       default_source == xtion
+       -------------------------- -->
+  <group if="$(eval arg('default_source') == 'xtion')">
+    <!-- RGB -->
+    <node pkg="topic_tools" type="mux" name="mux_rgb_image" output="screen"
+          args="/camera/rgb/image_raw $(arg xtion_rgb) $(arg webcam_rgb) $(arg rs_rgb)" />
+    <node pkg="topic_tools" type="mux" name="mux_rgb_info" output="screen"
+          args="/camera/rgb/camera_info $(arg xtion_info) $(arg webcam_info) $(arg rs_info)" />
 
-  <!-- Depth CameraInfo -->
-  <node pkg="topic_tools" type="mux" name="mux_depth_info" output="screen"
-        args="/camera/depth/camera_info $(arg xtion_depth_info) $(arg rs_depth_info)" />
+    <!-- Depth -->
+    <node pkg="topic_tools" type="mux" name="mux_depth_image" output="screen"
+          args="/camera/depth/image_raw $(arg xtion_depth) $(arg rs_depth)" />
+    <node pkg="topic_tools" type="mux" name="mux_depth_info" output="screen"
+          args="/camera/depth/camera_info $(arg xtion_depth_info) $(arg rs_depth_info)" />
+    <node pkg="topic_tools" type="mux" name="mux_points" output="screen"
+          args="/camera/depth/points $(arg xtion_points) $(arg rs_points)" />
+  </group>
 
-  <!-- PointCloud2 -->
-  <node pkg="topic_tools" type="mux" name="mux_points" output="screen"
-        args="/camera/depth/points $(arg xtion_points) $(arg rs_points)" />
+  <!-- -----------------------------
+       default_source == realsense
+       ----------------------------- -->
+  <group if="$(eval arg('default_source') == 'realsense')">
+    <!-- RGB -->
+    <node pkg="topic_tools" type="mux" name="mux_rgb_image" output="screen"
+          args="/camera/rgb/image_raw $(arg rs_rgb) $(arg xtion_rgb) $(arg webcam_rgb)" />
+    <node pkg="topic_tools" type="mux" name="mux_rgb_info" output="screen"
+          args="/camera/rgb/camera_info $(arg rs_info) $(arg xtion_info) $(arg webcam_info)" />
+
+    <!-- Depth -->
+    <node pkg="topic_tools" type="mux" name="mux_depth_image" output="screen"
+          args="/camera/depth/image_raw $(arg rs_depth) $(arg xtion_depth)" />
+    <node pkg="topic_tools" type="mux" name="mux_depth_info" output="screen"
+          args="/camera/depth/camera_info $(arg rs_depth_info) $(arg xtion_depth_info)" />
+    <node pkg="topic_tools" type="mux" name="mux_points" output="screen"
+          args="/camera/depth/points $(arg rs_points) $(arg xtion_points)" />
+  </group>
+
+  <!-- それ以外の値が来た時の保険（xtion相当に倒す） -->
+  <group unless="$(eval arg('default_source') in ['webcam','xtion','realsense'])">
+    <node pkg="topic_tools" type="mux" name="mux_rgb_image" output="screen"
+          args="/camera/rgb/image_raw $(arg xtion_rgb) $(arg webcam_rgb) $(arg rs_rgb)" />
+    <node pkg="topic_tools" type="mux" name="mux_rgb_info" output="screen"
+          args="/camera/rgb/camera_info $(arg xtion_info) $(arg webcam_info) $(arg rs_info)" />
+    <node pkg="topic_tools" type="mux" name="mux_depth_image" output="screen"
+          args="/camera/depth/image_raw $(arg xtion_depth) $(arg rs_depth)" />
+    <node pkg="topic_tools" type="mux" name="mux_depth_info" output="screen"
+          args="/camera/depth/camera_info $(arg xtion_depth_info) $(arg rs_depth_info)" />
+    <node pkg="topic_tools" type="mux" name="mux_points" output="screen"
+          args="/camera/depth/points $(arg xtion_points) $(arg rs_points)" />
+  </group>
 </launch>
