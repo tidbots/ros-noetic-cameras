@@ -1,0 +1,20 @@
+<launch>
+  <!-- 例: /dev/video0 を使う -->
+  <arg name="device" default="/dev/video0"/>
+  <arg name="name" default="webcam"/>
+  <arg name="frame_id" default="webcam_link"/>
+  <arg name="width" default="640"/>
+  <arg name="height" default="480"/>
+  <arg name="fps" default="30"/>
+
+  <group ns="$(arg name)">
+    <node pkg="usb_cam" type="usb_cam_node" name="usb_cam" output="screen">
+      <param name="video_device" value="$(arg device)"/>
+      <param name="image_width" value="$(arg width)"/>
+      <param name="image_height" value="$(arg height)"/>
+      <param name="framerate" value="$(arg fps)"/>
+      <param name="frame_id" value="$(arg frame_id)"/>
+      <!-- 必要なら: pixel_format, io_method なども -->
+    </node>
+  </group>
+</launch>
