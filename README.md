@@ -87,12 +87,12 @@ docker compose down
 ## 5. デバッグ
 ### rqt_image_viewで確認
 ```
-docker compose --profile webcam up --profile debug
+docker compose --profile webcam --profile debug up
 ```
 
 ###  ブラウザで確認
 ```
-docker compose --profile webcam up --profile debug-web
+docker compose --profile webcam --profile debug-web up
 ```
 
 同じマシンなら：
