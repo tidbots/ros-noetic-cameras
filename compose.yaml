@@ -5,32 +5,7 @@ services:
     network_mode: host
     command: ["roscore"]
     restart: unless-stopped
-
-  web_video_server:
-    image: ros-noetic-cameras:latest
-    depends_on: [roscore]
-    network_mode: host
-    ipc: host
-    restart: "no"
-    environment:
-      - ROS_MASTER_URI=http://127.0.0.1:11311
-      - ROS_IP=127.0.0.1
-    command: ["roslaunch","--wait","camera_launch","web_video_server.launch","port:=8080"]
-    profiles: ["debug"]
-
-  # --------------------------
-  # 統一トピック mux
-  # --------------------------
-  camera_mux:
-    image: ros-noetic-cameras:latest
-    depends_on: [roscore]
-    network_mode: host
-    ipc: host
-    restart: unless-stopped
-    environment:
-      - ROS_MASTER_URI=http://127.0.0.1:11311
-      - ROS_IP=127.0.0.1
-    command: ["roslaunch", "--wait", "camera_launch", "camera_mux.launch", "default_source:=webcam"]
+    
 
   # --------------------------
   # USB Webカメラ (UVC)
@@ -114,7 +89,7 @@ services:
 
   # --------------------------
   # Debug: rqt_image_view
-  image_view_rgb:
+  rqt_image_view_rgb:
     image: ros-noetic-cameras:latest
     depends_on: [roscore]
     network_mode: host
@@ -129,9 +104,17 @@ services:
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix:rw
       - ${HOME}/.Xauthority:/root/.Xauthority:ro
-#    command: ["roslaunch","--wait","camera_launch","image_view.launch","image:=/webcam/image_raw"]
-
-   # command: ["roslaunch","--wait","camera_launch","image_view.launch","image:=/camera/rgb/image_raw"]
     command: ["rqt_image_view"]
     profiles: ["debug"]
 
+  web_video_server:
+    image: ros-noetic-cameras:latest
+    depends_on: [roscore]
+    network_mode: host
+    ipc: host
+    restart: "no"
+    environment:
+      - ROS_MASTER_URI=http://127.0.0.1:11311
+      - ROS_IP=127.0.0.1
+    command: ["roslaunch","--wait","camera_launch","web_video_server.launch","port:=8080"]
+    profiles: ["debug-web"]
