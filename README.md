@@ -4,7 +4,6 @@ ros-noetic-cameras
 ## 目的
 - ROS Noetic 上で 複数種類のカメラ入力（Webカメラ / Xtion / RealSense）を Docker Compose で運用する
 - camera_info（キャリブレーションyaml）を ホストに永続化
-- 下流（YOLO等）はカメラ種類に依存せず、統一トピックだけ購読すれば良いようにする（mux）
 
 ## 対応カメラ
 - Webカメラ（UVC: /dev/video*）
@@ -17,11 +16,13 @@ ros-noetic-cameras/
   compose.yaml
   Dockerfile
   entrypoint.sh
-  launch/
-    webcam.launch
-    xtion.launch
-    realsense.launch          # 任意
-    camera_mux.launch         # 統一トピックmux（default_source対応）
+  camera_launch/
+    CMakeLists.txt
+    package.xml
+    launch/
+      webcam.launch
+      xtion.launch
+      realsense.launch          
   persist/
     camera_info/
       webcam/
@@ -33,6 +34,7 @@ ros-noetic-cameras/
 ```
 git clone https://github.com/tidbots/ros-noetic-cameras.git
 cd ros-noetic-cameras
+docker compose build
 ```
 
 ### 1-1. ホスト側ディレクトリ作成（camera_info永続化先）
@@ -64,17 +66,17 @@ Bus 003 Device 005: ID 1d27:0601 ASUS Xtion
 ## 2. 起動方法
 ### 2-1. Webカメラ起動
 ```
-docker compose --profile webcam up --build
+docker compose --profile webcam up
 ```
 
 ### 2-2. Xtion起動
 ```
-docker compose --profile xtion up --build
+docker compose --profile xtion up
 ```
 
 ### 2-3. RealSense起動（任意）
 ```
-docker compose --profile realsense up --build
+docker compose --profile realsense up
 ```
 
 ### 停止：
@@ -82,72 +84,31 @@ docker compose --profile realsense up --build
 docker compose down
 ```
 
-## 3. 出力トピック（統一トピック）
-下流ノード（YOLO等）は以下だけ購読すればOKです。
-### 3-1. RGB
+## 5. デバッグ
+### rqt_image_viewで確認
 ```
-/camera/rgb/image_raw
-/camera/rgb/camera_info
-```
-### 3-2. Depth（3Dカメラのみ）
-```
-/camera/depth/image_raw
-/camera/depth/camera_info
-/camera/depth/points
+docker compose --profile webcam up --profile debug
 ```
 
-確認：
+###  ブラウザで確認
 ```
-rostopic list | egrep "^/camera/"
-
-```
-
-## 4. mux（統一トピック）設定
-camera_mux.launch は default_source 引数で、起動時にどの入力を選択するか制御します。
-### 4-1. 起動時のデフォルト入力を指定する
-compose.yaml の camera_mux の command を変更します。
-
-#### 例：Xtionをデフォルト（推奨）
-```
-command: ["roslaunch", "camera_launch", "camera_mux.launch", "default_source:=xtion"]
+docker compose --profile webcam up --profile debug
 ```
 
-#### 例：Webカメラをデフォルト
-```
-command: ["roslaunch", "camera_launch", "camera_mux.launch", "default_source:=webcam"]
-```
 
-#### 例：RealSenseをデフォルト
-```
-command: ["roslaunch", "camera_launch", "camera_mux.launch", "default_source:=realsense"]
-```
+同じマシンなら：
 
-## 5. 実行中に入力を切り替える（selectサービス）
-topic_tools/mux は .../select サービスで入力トピックを切替できます。
+http://localhost:8080/
 
-### 5-1. RGBをXtionに切り替える
-```
-rosservice call /mux_rgb_image/select "/xtion/rgb/image_raw"
-rosservice call /mux_rgb_info/select  "/xtion/rgb/camera_info"
-```
+直リンク：http://localhost:8080/stream?topic=/webcam/image_raw
 
-### 5-2. RGBをWebカメラに切り替える
-```
-rosservice call /mux_rgb_image/select "/webcam/image_raw"
-rosservice call /mux_rgb_info/select  "/webcam/camera_info"
-```
+mux が動いていれば：http://localhost:8080/stream?topic=/camera/rgb/image_raw
 
-### 5-3. DepthをRealSenseに切り替える（例）
-```
-rosservice call /mux_depth_image/select "/realsense/depth/image_rect_raw"
-rosservice call /mux_depth_info/select  "/realsense/depth/camera_info"
-rosservice call /mux_points/select      "/realsense/depth/points"
-```
+※ あなたのホスト名が lucy なので、別PCから見るなら localhost を lucy に。
 
-### 利用可能サービス一覧：
-```
-rosservice list | grep mux
-```
+
+
+
 
 ## 6. camera_info（キャリブレーション）の永続化
 ### 6-1. 永続化の仕組み
