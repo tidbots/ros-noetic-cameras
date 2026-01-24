@@ -4,6 +4,33 @@ services:
     build: .
     network_mode: host
     command: ["roscore"]
+    restart: unless-stopped
+
+  web_video_server:
+    image: ros-noetic-cameras:latest
+    depends_on: [roscore]
+    network_mode: host
+    ipc: host
+    restart: "no"
+    environment:
+      - ROS_MASTER_URI=http://127.0.0.1:11311
+      - ROS_IP=127.0.0.1
+    command: ["roslaunch","--wait","camera_launch","web_video_server.launch","port:=8080"]
+    profiles: ["debug"]
+
+  # --------------------------
+  # 統一トピック mux
+  # --------------------------
+  camera_mux:
+    image: ros-noetic-cameras:latest
+    depends_on: [roscore]
+    network_mode: host
+    ipc: host
+    restart: unless-stopped
+    environment:
+      - ROS_MASTER_URI=http://127.0.0.1:11311
+      - ROS_IP=127.0.0.1
+    command: ["roslaunch", "--wait", "camera_launch", "camera_mux.launch", "default_source:=webcam"]
 
   # --------------------------
   # USB Webカメラ (UVC)
@@ -24,7 +51,7 @@ services:
       - ./persist/camera_info/webcam:/root/.ros/camera_info
     command:
       [
-        "roslaunch", "camera_launch", "webcam.launch",
+        "roslaunch", "--wait", "camera_launch", "webcam.launch",
         "device:=/dev/video0",
         "name:=webcam",
         "frame_id:=webcam_link",
@@ -47,16 +74,14 @@ services:
     restart: unless-stopped
     privileged: true
     volumes:
-      # USBデバイスアクセス
       - /dev/bus/usb:/dev/bus/usb
-      # camera_info 永続化（Xtion用）
       - ./persist/camera_info/xtion:/root/.ros/camera_info
     environment:
       - ROS_MASTER_URI=http://127.0.0.1:11311
       - ROS_IP=127.0.0.1
     command:
       [
-        "roslaunch", "camera_launch", "xtion.launch",
+        "roslaunch", "--wait", "camera_launch", "xtion.launch",
         "name:=xtion",
         "rgb_processing:=true",
         "depth_processing:=true",
@@ -75,37 +100,21 @@ services:
     restart: unless-stopped
     privileged: true
     volumes:
-      # USBデバイスアクセス
       - /dev/bus/usb:/dev/bus/usb
-      # camera_info 永続化（RealSense用）
       - ./persist/camera_info/realsense:/root/.ros/camera_info
     environment:
       - ROS_MASTER_URI=http://127.0.0.1:11311
       - ROS_IP=127.0.0.1
     command:
       [
-        "roslaunch", "camera_launch", "realsense.launch",
+        "roslaunch", "--wait", "camera_launch", "realsense.launch",
         "name:=realsense"
       ]
     profiles: ["realsense"]
 
-  camera_mux:
-    image: ros-noetic-cameras:latest
-    depends_on: [roscore]
-    network_mode: host
-    ipc: host
-    restart: unless-stopped
-    environment:
-      - ROS_MASTER_URI=http://127.0.0.1:11311
-      - ROS_IP=127.0.0.1
-    # Webカメラをデフォルトに
-    command: ["roslaunch", "camera_launch", "camera_mux.launch", "default_source:=webcam"]
-    # Xtionをデフォルトに
-#    command: ["roslaunch", "camera_launch", "camera_mux.launch", "default_source:=xtion"]
-    # RealSenseをデフォルトに
-#    command: ["roslaunch", "camera_launch", "camera_mux.launch", "default_source:=realsense"]
-
-  rqt_image_view:
+  # --------------------------
+  # Debug: rqt_image_view
+  image_view_rgb:
     image: ros-noetic-cameras:latest
     depends_on: [roscore]
     network_mode: host
@@ -116,8 +125,12 @@ services:
       - ROS_IP=127.0.0.1
       - DISPLAY=${DISPLAY}
       - QT_X11_NO_MITSHM=1
+      - XAUTHORITY=/root/.Xauthority
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix:rw
-    command: ["rqt_image_view", "/camera/rgb/image_raw"]
+      - ${HOME}/.Xauthority:/root/.Xauthority:ro
+    command: ["roslaunch","--wait","camera_launch","image_view.launch","image:=/webcam/image_raw"]
+
+   # command: ["roslaunch","--wait","camera_launch","image_view.launch","image:=/camera/rgb/image_raw"]
     profiles: ["debug"]
 
