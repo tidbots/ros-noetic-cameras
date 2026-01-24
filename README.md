@@ -92,19 +92,18 @@ docker compose --profile webcam up --profile debug
 
 ###  ブラウザで確認
 ```
-docker compose --profile webcam up --profile debug
+docker compose --profile webcam up --profile debug-web
 ```
 
-
 同じマシンなら：
-
+```
 http://localhost:8080/
-
+```
+```
 直リンク：http://localhost:8080/stream?topic=/webcam/image_raw
+```
 
-mux が動いていれば：http://localhost:8080/stream?topic=/camera/rgb/image_raw
-
-※ あなたのホスト名が lucy なので、別PCから見るなら localhost を lucy に。
+別PCから見るなら localhost をホストネームに
 
 
 
