@@ -1,8 +1,0 @@
-<launch>
-  <arg name="image" default="/camera/rgb/image_raw"/>
-
-  <node pkg="image_view" type="image_view" name="image_view" output="screen">
-    <remap from="image" to="$(arg image)"/>
-  </node>
-</launch>
-
