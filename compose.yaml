@@ -129,8 +129,9 @@ services:
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix:rw
       - ${HOME}/.Xauthority:/root/.Xauthority:ro
-    command: ["roslaunch","--wait","camera_launch","image_view.launch","image:=/webcam/image_raw"]
+#    command: ["roslaunch","--wait","camera_launch","image_view.launch","image:=/webcam/image_raw"]
 
    # command: ["roslaunch","--wait","camera_launch","image_view.launch","image:=/camera/rgb/image_raw"]
+    command: ["rqt_image_view"]
     profiles: ["debug"]
 
