@@ -1,5 +1,14 @@
 <launch>
   <arg name="name" default="realsense"/>
+
+  <!-- RealSenseの入力（典型） -->
+  <arg name="in_image" default="/realsense/color/image_raw"/>
+  <arg name="in_info"  default="/realsense/color/camera_info"/>
+
+  <!-- 統一出力 -->
+  <arg name="out_image" default="/camera/image_raw"/>
+  <arg name="out_info"  default="/camera/camera_info"/>
+
   <group ns="$(arg name)">
     <node pkg="realsense2_camera" type="realsense2_camera_node" name="rs_camera" output="screen">
       <!-- 必要に応じて param を追加 -->
@@ -7,4 +16,10 @@
       <!-- <param name="align_depth" value="true"/> -->
     </node>
   </group>
+
+  <!-- 統一トピックへ寄せる（launch内でrelay） -->
+  <node pkg="topic_tools" type="relay" name="relay_rs_image" output="screen"
+        args="$(arg in_image) $(arg out_image)"/>
+  <node pkg="topic_tools" type="relay" name="relay_rs_info" output="screen"
+        args="$(arg in_info) $(arg out_info)"/>
 </launch>
