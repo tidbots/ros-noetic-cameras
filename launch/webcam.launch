@@ -1,7 +1,4 @@
 <launch>
-  <!-- ns は「未指定＝空」でOK。空のときは ns 属性を付けない -->
-  <arg name="ns" default=""/>
-
   <arg name="device" default="/dev/video0"/>
   <arg name="width"  default="1280"/>
   <arg name="height" default="720"/>
@@ -11,12 +8,11 @@
   <arg name="camera_info_url" default="file:///root/.ros/camera_info/webcam.yaml"/>
   <arg name="frame_id" default="webcam_link"/>
 
+  <!-- 統一出力 -->
   <arg name="out_image" default="/camera/image_raw"/>
   <arg name="out_info"  default="/camera/camera_info"/>
 
-  <!-- ns が空のとき（=デフォルト） -->
-  <node if="$(eval arg('ns') == '')"
-        pkg="usb_cam" type="usb_cam_node" name="usb_cam" output="screen">
+  <node pkg="usb_cam" type="usb_cam_node" name="usb_cam" output="screen">
     <param name="video_device" value="$(arg device)"/>
     <param name="image_width"  value="$(arg width)"/>
     <param name="image_height" value="$(arg height)"/>
@@ -26,24 +22,8 @@
     <param name="camera_name" value="$(arg camera_name)"/>
     <param name="camera_info_url" value="$(arg camera_info_url)"/>
 
+    <!-- usb_cam は ~image_raw / ~camera_info で publish するため、~ を remap -->
     <remap from="~image_raw"   to="$(arg out_image)"/>
     <remap from="~camera_info" to="$(arg out_info)"/>
   </node>
-
-  <!-- ns が空でないとき（例: ns:=usb_cam） -->
-  <node if="$(eval arg('ns') != '')"
-        pkg="usb_cam" type="usb_cam_node" name="usb_cam" ns="$(arg ns)" output="screen">
-    <param name="video_device" value="$(arg device)"/>
-    <param name="image_width"  value="$(arg width)"/>
-    <param name="image_height" value="$(arg height)"/>
-    <param name="framerate"    value="$(arg fps)"/>
-    <param name="frame_id"     value="$(arg frame_id)"/>
-
-    <param name="camera_name" value="$(arg camera_name)"/>
-    <param name="camera_info_url" value="$(arg camera_info_url)"/>
-
-    <remap from="image_raw"   to="$(arg out_image)"/>
-    <remap from="camera_info" to="$(arg out_info)"/>
-  </node>
 </launch>
-
