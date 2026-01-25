@@ -32,7 +32,8 @@ services:
         "frame_id:=webcam_link",
         "width:=1280",
         "height:=720",
-        "fps:=30",
+        #"fps:=30",
+        "fps:=${CAM_FPS:-30}",
         "camera_name:=webcam",
         "camera_info_url:=file:///root/.ros/camera_info/webcam.yaml"
       ]
