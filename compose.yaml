@@ -94,6 +94,9 @@ services:
     depends_on: [roscore]
     network_mode: host
     ipc: host
+    tty: true
+    stdin_open: true
+
     restart: "no"
     environment:
       - ROS_MASTER_URI=http://127.0.0.1:11311
@@ -104,7 +107,8 @@ services:
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix:rw
       - ${HOME}/.Xauthority:/root/.Xauthority:ro
-    command: ["rqt_image_view"]
+    #command: ["rqt_image_view"]
+    command: ["bash"]
     profiles: ["debug"]
 
   web_video_server:
