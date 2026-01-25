@@ -1,25 +1,29 @@
 <launch>
   <arg name="device" default="/dev/video0"/>
-  <arg name="name" default="webcam"/>
-  <arg name="frame_id" default="webcam_link"/>
-  <arg name="width" default="1280"/>
+  <arg name="width"  default="1280"/>
   <arg name="height" default="720"/>
-  <arg name="fps" default="30"/>
+  <arg name="fps"    default="30"/>
 
-  <arg name="camera_name" default="webcam"/>
-  <arg name="camera_info_url" default="file:///root/.ros/camera_info/webcam.yaml"/>
+  <arg name="camera_name" default="camera"/>
+  <arg name="camera_info_url" default="file:///root/.ros/camera_info/camera.yaml"/>
+  <arg name="frame_id" default="camera_link"/>
 
-  <group ns="$(arg name)">
-    <node pkg="usb_cam" type="usb_cam_node" name="usb_cam" output="screen">
-      <param name="video_device" value="$(arg device)"/>
-      <param name="image_width" value="$(arg width)"/>
-      <param name="image_height" value="$(arg height)"/>
-      <param name="framerate" value="$(arg fps)"/>
-      <param name="frame_id" value="$(arg frame_id)"/>
+  <!-- ★ remap先をarg化（ここがポイント） -->
+  <arg name="out_image" default="/camera/image_raw"/>
+  <arg name="out_info"  default="/camera/camera_info"/>
 
-      <param name="camera_name" value="$(arg camera_name)"/>
-      <param name="camera_info_url" value="$(arg camera_info_url)"/>
-    </node>
-  </group>
+  <node pkg="usb_cam" type="usb_cam_node" name="usb_cam" output="screen">
+    <param name="video_device" value="$(arg device)"/>
+    <param name="image_width"  value="$(arg width)"/>
+    <param name="image_height" value="$(arg height)"/>
+    <param name="framerate"    value="$(arg fps)"/>
+    <param name="frame_id"     value="$(arg frame_id)"/>
+
+    <param name="camera_name" value="$(arg camera_name)"/>
+    <param name="camera_info_url" value="$(arg camera_info_url)"/>
+
+    <!-- ★ remap先をargで差し替え可能に -->
+    <remap from="image_raw"   to="$(arg out_image)"/>
+    <remap from="camera_info" to="$(arg out_info)"/>
+  </node>
 </launch>
-

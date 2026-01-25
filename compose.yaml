@@ -34,7 +34,9 @@ services:
         "height:=${CAM_H:-720}",
         "fps:=${CAM_FPS:-30}",
         "camera_name:=${CAMERA_NAME:-webcam}",
-        "camera_info_url:=${CAMERA_INFO_URL:-file:///root/.ros/camera_info/webcam.yaml}"
+        "camera_info_url:=${CAMERA_INFO_URL:-file:///root/.ros/camera_info/webcam.yaml}",
+    "out_image:=/camera/image_raw",
+    "out_info:=/camera/camera_info"
       ]
     profiles: ["webcam"]
 
