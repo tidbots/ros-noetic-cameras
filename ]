@@ -61,7 +61,7 @@ services:
     command:
       [
         "bash","-lc",
-        "source /opt/ros/noetic/setup.bash &&          roslaunch --wait /launch/xtion.launch            name:=${XTION_NAME:-xtion}            camera:=${XTION_CAMERA_NS:-camera}            rgb:=${XTION_RGB_NS:-rgb}            frame_id:=${XTION_FRAME:-xtion_link}            rgb_camera_info_url:=${XTION_RGB_INFO_URL:-file:///root/.ros/camera_info/xtion_rgb.yaml}            depth_camera_info_url:=${XTION_DEPTH_INFO_URL:-file:///root/.ros/camera_info/xtion_depth.yaml}            in_image:=${XTION_IN_IMAGE:-/xtion/camera/rgb/image_raw}            in_info:=${XTION_IN_INFO:-/xtion/camera/rgb/camera_info}            out_image:=${OUT_IMAGE:-/usb_cam/image_raw}            out_info:=${OUT_INFO:-/camera/camera_info}"
+        "source /opt/ros/noetic/setup.bash &&          roslaunch --wait /launch/xtion.launch            name:=${XTION_NAME:-xtion}            camera:=${XTION_CAMERA_NS:-camera}            rgb:=${XTION_RGB_NS:-rgb}            frame_id:=${XTION_FRAME:-xtion_link}            rgb_camera_info_url:=${XTION_RGB_INFO_URL:-file:///root/.ros/camera_info/xtion_rgb.yaml}            depth_camera_info_url:=${XTION_DEPTH_INFO_URL:-file:///root/.ros/camera_info/xtion_depth.yaml}            in_image:=${XTION_IN_IMAGE:-/xtion/camera/rgb/image_raw}            in_info:=${XTION_IN_INFO:-/xtion/camera/rgb/camera_info}            out_image:=${OUT_IMAGE:-/camera/image_raw}            out_info:=${OUT_INFO:-/camera/camera_info}"
       ]
     profiles: ["xtion"]
 
