@@ -76,10 +76,9 @@ CAM_DEV=/dev/video2 CAM_W=640 CAM_H=480 CAM_FPS=15 docker compose --profile webc
 ### 2-2. Xtion起動
 ```
 docker compose --profile xtion up
-
 ```
 
-### 2-3. RealSense起動（任意）
+### 2-3. RealSense起動
 ```
 docker compose --profile realsense up
 ```
