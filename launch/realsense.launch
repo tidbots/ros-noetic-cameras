@@ -1,0 +1,10 @@
+<launch>
+  <arg name="name" default="realsense"/>
+  <group ns="$(arg name)">
+    <node pkg="realsense2_camera" type="realsense2_camera_node" name="rs_camera" output="screen">
+      <!-- 必要に応じて param を追加 -->
+      <!-- <param name="enable_depth" value="true"/> -->
+      <!-- <param name="align_depth" value="true"/> -->
+    </node>
+  </group>
+</launch>
