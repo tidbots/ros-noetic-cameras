@@ -1,4 +1,4 @@
-#
+# カメラ入力
 ros-noetic-cameras
 
 ## 目的
@@ -67,6 +67,10 @@ Bus 003 Device 005: ID 1d27:0601 ASUS Xtion
 ### 2-1. Webカメラ起動
 ```
 docker compose --profile webcam up
+```
+起動時のWebカメラのパラメータを変更する
+```
+
 ```
 
 ### 2-2. Xtion起動
