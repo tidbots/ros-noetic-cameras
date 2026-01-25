@@ -70,12 +70,13 @@ docker compose --profile webcam up
 ```
 起動時のWebカメラのパラメータを変更する
 ```
-
+CAM_DEV=/dev/video2 CAM_W=640 CAM_H=480 CAM_FPS=15 docker compose --profile webcam up
 ```
 
 ### 2-2. Xtion起動
 ```
 docker compose --profile xtion up
+
 ```
 
 ### 2-3. RealSense起動（任意）
