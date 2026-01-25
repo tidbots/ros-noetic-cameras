@@ -16,13 +16,10 @@ ros-noetic-cameras/
   compose.yaml
   Dockerfile
   entrypoint.sh
-  camera_launch/
-    CMakeLists.txt
-    package.xml
-    launch/
-      webcam.launch
-      xtion.launch
-      realsense.launch          
+  launch/
+    webcam.launch
+    xtion.launch
+    realsense.launch          
   persist/
     camera_info/
       webcam/
