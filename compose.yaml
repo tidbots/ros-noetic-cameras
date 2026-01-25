@@ -58,9 +58,9 @@ services:
       [
         "roslaunch", "--wait", "camera_launch", "xtion.launch",
         "name:=${CAM_NAME:-xtion}",
-        "rgb_processing:=${RGB:-true}",
-        "depth_processing:=${DEPTH=-true}",
-        "ir_processing:=${IR:-false}"
+        "rgb_processing:=true",
+        "depth_processing:=true",
+        "ir_processing:=false"
       ]
     profiles: ["xtion"]
 

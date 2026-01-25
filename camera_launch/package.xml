@@ -2,7 +2,7 @@
 <package format="2">
   <name>camera_launch</name>
   <version>0.1.0</version>
-  <description>Camera launch + mux utilities for ROS Noetic in Docker</description>
+  <description>Camera launch for ROS Noetic in Docker</description>
 
   <maintainer email="you@example.com">you</maintainer>
   <license>MIT</license>

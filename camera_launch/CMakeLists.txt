@@ -6,7 +6,6 @@ find_package(catkin REQUIRED COMPONENTS rospy topic_tools)
 catkin_package()
 
 catkin_install_python(PROGRAMS
-  scripts/mux_select.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
