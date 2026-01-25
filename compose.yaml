@@ -1,11 +1,17 @@
 services:
+  # --------------------------
+  # ROS Master
+  # --------------------------
   roscore:
     image: ros-noetic-cameras:latest
     build: .
     network_mode: host
-    command: ["roscore"]
     restart: unless-stopped
-    
+    command: ["bash","-lc","source /opt/ros/noetic/setup.bash && roscore"]
+
+  # ==========================
+  # Camera sources (pick ONE)
+  # ==========================
 
   # --------------------------
   # USB Webカメラ (UVC)
@@ -17,31 +23,24 @@ services:
     ipc: host
     restart: unless-stopped
     devices:
-      - /dev/video0:/dev/video0
+      - ${CAM_DEV:-/dev/video0}:${CAM_DEV:-/dev/video0}
     environment:
       - ROS_MASTER_URI=http://127.0.0.1:11311
       - ROS_IP=127.0.0.1
     volumes:
+      # launchをホストから差し替え（再ビルド不要）
+      - ./launch:/launch:ro
       # camera_info 永続化（Webカメラ用）
       - ./persist/camera_info/webcam:/root/.ros/camera_info
     command:
       [
-        "roslaunch", "--wait", "camera_launch", "webcam.launch",
-        "device:=${CAM_DEV:-/dev/video0}",
-        "name:=${CAM_NAME:-webcam}",
-        "frame_id:=${CAM_FRAME:-webcam_link}",
-        "width:=${CAM_W:-1280}",
-        "height:=${CAM_H:-720}",
-        "fps:=${CAM_FPS:-30}",
-        "camera_name:=${CAMERA_NAME:-webcam}",
-        "camera_info_url:=${CAMERA_INFO_URL:-file:///root/.ros/camera_info/webcam.yaml}",
-    "out_image:=/camera/image_raw",
-    "out_info:=/camera/camera_info"
+        "bash","-lc",
+        "source /opt/ros/noetic/setup.bash &&          roslaunch --wait /launch/webcam.launch            device:=${CAM_DEV:-/dev/video0}            width:=${CAM_W:-1280} height:=${CAM_H:-720} fps:=${CAM_FPS:-30}            frame_id:=${CAM_FRAME:-webcam_link}            camera_name:=${CAMERA_NAME:-webcam}            camera_info_url:=${CAMERA_INFO_URL:-file:///root/.ros/camera_info/webcam.yaml}            out_image:=${OUT_IMAGE:-/camera/image_raw}            out_info:=${OUT_INFO:-/camera/camera_info}"
       ]
     profiles: ["webcam"]
 
   # --------------------------
-  # Xtion / OpenNI2
+  # ASUS Xtion / OpenNI2 (RGB-D)
   # --------------------------
   camera_xtion:
     image: ros-noetic-cameras:latest
@@ -49,25 +48,25 @@ services:
     network_mode: host
     ipc: host
     restart: unless-stopped
+    # XtionはUSBデバイスのパーミッション問題が出ることが多いので、
+    # まずはprivilegedで動かし、必要に応じて絞ってください。
     privileged: true
-    volumes:
-      - /dev/bus/usb:/dev/bus/usb
-      - ./persist/camera_info/xtion:/root/.ros/camera_info
     environment:
       - ROS_MASTER_URI=http://127.0.0.1:11311
       - ROS_IP=127.0.0.1
+    volumes:
+      - ./launch:/launch:ro
+      # camera_info 永続化（Xtion用）
+      - ./persist/camera_info/xtion:/root/.ros/camera_info
     command:
       [
-        "roslaunch", "--wait", "camera_launch", "xtion.launch",
-        "name:=${CAM_NAME:-xtion}",
-        "rgb_processing:=true",
-        "depth_processing:=true",
-        "ir_processing:=false"
+        "bash","-lc",
+        "source /opt/ros/noetic/setup.bash &&          roslaunch --wait /launch/xtion.launch            name:=${XTION_NAME:-xtion}            camera:=${XTION_CAMERA_NS:-camera}            rgb:=${XTION_RGB_NS:-rgb}            frame_id:=${XTION_FRAME:-xtion_link}            rgb_camera_info_url:=${XTION_RGB_INFO_URL:-file:///root/.ros/camera_info/xtion_rgb.yaml}            depth_camera_info_url:=${XTION_DEPTH_INFO_URL:-file:///root/.ros/camera_info/xtion_depth.yaml}            in_image:=${XTION_IN_IMAGE:-/xtion/camera/rgb/image_raw}            in_info:=${XTION_IN_INFO:-/xtion/camera/rgb/camera_info}            out_image:=${OUT_IMAGE:-/camera/image_raw}            out_info:=${OUT_INFO:-/camera/camera_info}"
       ]
     profiles: ["xtion"]
 
   # --------------------------
-  # Intel RealSense (任意)
+  # Intel RealSense (realsense2_camera)
   # --------------------------
   camera_realsense:
     image: ros-noetic-cameras:latest
@@ -76,50 +75,53 @@ services:
     ipc: host
     restart: unless-stopped
     privileged: true
-    volumes:
-      - /dev/bus/usb:/dev/bus/usb
-      - ./persist/camera_info/realsense:/root/.ros/camera_info
     environment:
       - ROS_MASTER_URI=http://127.0.0.1:11311
       - ROS_IP=127.0.0.1
+    volumes:
+      - ./launch:/launch:ro
+      # camera_info 永続化（RealSense用：主に自前yamlを置く用途）
+      - ./persist/camera_info/realsense:/root/.ros/camera_info
     command:
       [
-        "roslaunch", "--wait", "camera_launch", "realsense.launch",
-        "name:=realsense"
+        "bash","-lc",
+        "source /opt/ros/noetic/setup.bash &&          roslaunch --wait /launch/realsense.launch            name:=${RS_NAME:-realsense}            in_image:=${RS_IN_IMAGE:-/realsense/color/image_raw}            in_info:=${RS_IN_INFO:-/realsense/color/camera_info}            out_image:=${OUT_IMAGE:-/camera/image_raw}            out_info:=${OUT_INFO:-/camera/camera_info}"
       ]
     profiles: ["realsense"]
 
-  # --------------------------
-  # Debug: rqt_image_view
-  rqt_image_view_rgb:
+  # ==========================
+  # Debug utilities
+  # ==========================
+
+  # ブラウザで確認（http://localhost:8080/ など）
+  web_video_server:
     image: ros-noetic-cameras:latest
     depends_on: [roscore]
     network_mode: host
-    ipc: host
-    tty: true
-    stdin_open: true
+    restart: unless-stopped
+    environment:
+      - ROS_MASTER_URI=http://127.0.0.1:11311
+      - ROS_IP=127.0.0.1
+    volumes:
+      - ./launch:/launch:ro
+    command:
+      ["bash","-lc","source /opt/ros/noetic/setup.bash && roslaunch --wait /launch/web_video_server.launch port:=${WVS_PORT:-8080}"]
+    profiles: ["debug"]
+
+  # X11で画像ウィンドウ表示（DISPLAYやXauthorityが整っているときだけ）
+  image_view_rgb:
+    image: ros-noetic-cameras:latest
+    depends_on: [roscore]
+    network_mode: host
     restart: "no"
     environment:
       - ROS_MASTER_URI=http://127.0.0.1:11311
       - ROS_IP=127.0.0.1
       - DISPLAY=${DISPLAY}
-      - QT_X11_NO_MITSHM=1
-      - XAUTHORITY=/root/.Xauthority
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix:rw
-      - ${HOME}/.Xauthority:/root/.Xauthority:ro
-    command: ["rqt_image_view"]
-    #command: ["bash"]
-    profiles: ["debug"]
-
-  web_video_server:
-    image: ros-noetic-cameras:latest
-    depends_on: [roscore]
-    network_mode: host
-    ipc: host
-    restart: "no"
-    environment:
-      - ROS_MASTER_URI=http://127.0.0.1:11311
-      - ROS_IP=127.0.0.1
-    command: ["roslaunch","--wait","camera_launch","web_video_server.launch","port:=8080"]
-    profiles: ["debug-web"]
+      - ${XAUTHORITY:-$HOME/.Xauthority}:/root/.Xauthority:ro
+      - ./launch:/launch:ro
+    command:
+      ["bash","-lc","export XAUTHORITY=/root/.Xauthority; source /opt/ros/noetic/setup.bash && roslaunch --wait /launch/image_view_rgb.launch image:=${OUT_IMAGE:-/camera/image_raw}"]
+    profiles: ["x11"]
