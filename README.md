@@ -19,7 +19,10 @@ ros-noetic-cameras/
   launch/
     webcam.launch
     xtion.launch
-    realsense.launch          
+    realsense.launch
+    image_view_rgb.launch
+    rqt_image_view.launch
+    web_video_server.launch
   persist/
     camera_info/
       webcam/
@@ -69,10 +72,22 @@ docker compose --profile webcam up
 ```
 CAM_DEV=/dev/video2 CAM_W=640 CAM_H=480 CAM_FPS=15 docker compose --profile webcam up
 ```
+出力先トピックを変える（通常は不要）
+```
+export OUT_IMAGE=/camera/image_raw OUT_INFO=/camera/camera_info
+docker compose -f compose.yaml --profile webcam up --build
+```
+
 
 ### 2-2. Xtion起動
 ```
 docker compose --profile xtion up
+```
+tion の “元トピック” が環境で違う場合：
+```
+export XTION_IN_IMAGE=/xtion/camera/rgb/image_raw
+export XTION_IN_INFO=/xtion/camera/rgb/camera_info
+docker compose -f compose.yaml --profile xtion up --build
 ```
 
 ### 2-3. RealSense起動
@@ -86,9 +101,14 @@ docker compose down
 ```
 
 ## 5. デバッグ
+### image_viewで確認（比較的軽い）
+```
+docker compose --profile webcam --profile x11 up
+```
+
 ### rqt_image_viewで確認
 ```
-docker compose --profile webcam --profile debug up
+docker compose --profile webcam --profile image up
 ```
 
 ###  ブラウザで確認
