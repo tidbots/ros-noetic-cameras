@@ -108,6 +108,29 @@ services:
       ["bash","-lc","source /opt/ros/noetic/setup.bash && roslaunch --wait /launch/web_video_server.launch port:=${WVS_PORT:-8080}"]
     profiles: ["debug"]
 
+  rqt_image_view:
+    image: ros-noetic-cameras:latest
+    depends_on: [roscore]
+    network_mode: host
+    restart: "no"
+    environment:
+      - ROS_MASTER_URI=http://127.0.0.1:11311
+      - ROS_IP=127.0.0.1
+      - DISPLAY=${DISPLAY}
+      - QT_X11_NO_MITSHM=1
+      - XAUTHORITY=/root/.Xauthority
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      - ${XAUTHORITY:-$HOME/.Xauthority}:/root/.Xauthority:ro
+      - ./launch:/launch:ro
+    command:
+      [
+    "bash","-lc",
+    "source /opt/ros/noetic/setup.bash && \
+     rosrun rqt_image_view rqt_image_view --force-discover --clear-config /camera/image_raw"
+      ]
+    profiles: ["image"]
+
   # X11で画像ウィンドウ表示（DISPLAYやXauthorityが整っているときだけ）
   image_view_rgb:
     image: ros-noetic-cameras:latest
@@ -125,3 +148,4 @@ services:
     command:
       ["bash","-lc","export XAUTHORITY=/root/.Xauthority; source /opt/ros/noetic/setup.bash && roslaunch --wait /launch/image_view_rgb.launch image:=${OUT_IMAGE:-/camera/image_raw}"]
     profiles: ["x11"]
+
