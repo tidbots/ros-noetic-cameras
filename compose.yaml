@@ -27,15 +27,14 @@ services:
     command:
       [
         "roslaunch", "--wait", "camera_launch", "webcam.launch",
-        "device:=/dev/video0",
-        "name:=webcam",
-        "frame_id:=webcam_link",
-        "width:=1280",
-        "height:=720",
-        #"fps:=30",
+        "device:=${CAM_DEV:-/dev/video0}",
+        "name:=${CAM_NAME:-webcam}",
+        "frame_id:=${CAM_FRAME:-webcam_link}",
+        "width:=${CAM_W:-1280}",
+        "height:=${CAM_H:-720}",
         "fps:=${CAM_FPS:-30}",
-        "camera_name:=webcam",
-        "camera_info_url:=file:///root/.ros/camera_info/webcam.yaml"
+        "camera_name:=${CAMERA_NAME:-webcam}",
+        "camera_info_url:=${CAMERA_INFO_URL:-file:///root/.ros/camera_info/webcam.yaml}"
       ]
     profiles: ["webcam"]
 
