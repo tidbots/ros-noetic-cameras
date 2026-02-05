@@ -14,6 +14,7 @@
 
   <exec_depend>usb_cam</exec_depend>
   <exec_depend>openni2_launch</exec_depend>
+  <exec_depend>rgbd_launch</exec_depend>
   <exec_depend>realsense2_camera</exec_depend>
 
 </package>

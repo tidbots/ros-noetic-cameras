@@ -100,7 +100,7 @@ docker compose --profile realsense up
 docker compose down
 ```
 
-## 5. デバッグ
+## 3. デバッグ
 ### image_viewで確認（比較的軽い）
 ```
 docker compose --profile webcam --profile x11 up
@@ -113,7 +113,7 @@ docker compose --profile webcam --profile image up
 
 ###  ブラウザで確認
 ```
-docker compose --profile webcam --profile debug-web up
+docker compose --profile webcam --profile debug up
 ```
 
 同じマシンなら：
@@ -130,7 +130,7 @@ http://localhost:8080/
 
 
 
-## 6. camera_info（キャリブレーション）の永続化
+## 4. camera_info（キャリブレーション）の永続化
 ### 6-1. 永続化の仕組み
 各カメラコンテナは以下をホストにマウントしています。
 - コンテナ：/root/.ros/camera_info
@@ -151,7 +151,7 @@ Webカメラは webcam.launch で camera_info_url を指定し、yamlを読み�
 ./persist/camera_info/webcam/webcam.yaml
 ```
 
-## 7. カメラパラメータの変更方法
+## 5. カメラパラメータの変更方法
 ### 基本方針：
 
 - launch/*.launch に <arg> を用意
@@ -178,7 +178,7 @@ camera_xtion の command を変更します。
 "ir_processing:=true"
 ```
 
-## 8. よくあるトラブルと対処
+## 6. よくあるトラブルと対処
 ### 8-1. トピックが出ない
 - roscoreが起動しているか
 - 対象profileを指定しているか
@@ -197,7 +197,7 @@ RealSenseは環境でトピック名が変わることがあります。
 rostopic list | grep realsense
 ```
 
-## 9. 推奨運用（下流のYOLO等）
+## 7. 推奨運用（下流のYOLO等）
 - 下流は /camera/rgb/image_raw（必要ならDepth系も）だけ購読
 - カメラの切替は muxで吸収
 - camera_infoは persist で固定化し、再現性を確保

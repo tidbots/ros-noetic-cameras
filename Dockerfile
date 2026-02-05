@@ -8,6 +8,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     python3-pip \
     ros-noetic-usb-cam \
     ros-noetic-openni2-camera ros-noetic-openni2-launch \
+    ros-noetic-rgbd-launch \
     ros-noetic-realsense2-camera \
     ros-noetic-topic-tools \
     ros-noetic-rqt-image-view \
