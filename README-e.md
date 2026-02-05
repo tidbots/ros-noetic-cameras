@@ -101,15 +101,11 @@ docker compose down
 ```
 
 ## 3. Debugging
-### Check with image_view (relatively lightweight)
+### Check with OpenCV Viewer (Recommended)
 ```
-docker compose --profile webcam --profile x11 up
+docker compose --profile webcam --profile view up
 ```
-
-### Check with rqt_image_view
-```
-docker compose --profile webcam --profile image up
-```
+- Press `q` or `ESC` to exit
 
 ### Check in Browser
 ```
@@ -121,7 +117,7 @@ On the same machine:
 http://localhost:8080/
 ```
 ```
-Direct link: http://localhost:8080/stream?topic=/webcam/image_raw
+Direct link: http://localhost:8080/stream?topic=/camera/image_raw
 ```
 
 From another PC, replace localhost with the hostname

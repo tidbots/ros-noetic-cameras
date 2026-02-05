@@ -1,0 +1,9 @@
+<launch>
+  <arg name="image" default="/camera/image_raw"/>
+  <arg name="window_name" default="Camera View"/>
+
+  <node pkg="camera_launch" type="cv_viewer.py" name="cv_viewer" output="screen">
+    <param name="image" value="$(arg image)"/>
+    <param name="window_name" value="$(arg window_name)"/>
+  </node>
+</launch>

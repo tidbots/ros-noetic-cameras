@@ -11,8 +11,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     ros-noetic-rgbd-launch \
     ros-noetic-realsense2-camera \
     ros-noetic-topic-tools \
-    ros-noetic-rqt-image-view \
-    ros-noetic-image-view \
+    ros-noetic-cv-bridge \
+    python3-opencv \
     libgl1-mesa-dri libgl1-mesa-glx mesa-utils \
     ros-noetic-web-video-server  \
     && rm -rf /var/lib/apt/lists/*

@@ -101,15 +101,11 @@ docker compose down
 ```
 
 ## 3. デバッグ
-### image_viewで確認（比較的軽い）
+### OpenCVビューアで確認（推奨）
 ```
-docker compose --profile webcam --profile x11 up
+docker compose --profile webcam --profile view up
 ```
-
-### rqt_image_viewで確認
-```
-docker compose --profile webcam --profile image up
-```
+- `q` または `ESC` キーで終了
 
 ###  ブラウザで確認
 ```
@@ -121,7 +117,7 @@ docker compose --profile webcam --profile debug up
 http://localhost:8080/
 ```
 ```
-直リンク：http://localhost:8080/stream?topic=/webcam/image_raw
+直リンク：http://localhost:8080/stream?topic=/camera/image_raw
 ```
 
 別PCから見るなら localhost をホストネームに
